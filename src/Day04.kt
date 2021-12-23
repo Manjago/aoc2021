@@ -7,6 +7,7 @@ fun main() {
                 var unmarkedSum: Int = 0,
                 private val rows: IntArray = IntArray(LEN),
                 private val cols: IntArray = IntArray(LEN),
+                var turnOnWin: Int? = null
     ) {
         fun load(pos: Int, input: List<String>) : Int {
             for (i in pos + 1 .. pos + LEN) {
@@ -48,6 +49,12 @@ fun main() {
                         return
                     }
                 }
+            }
+        }
+
+        fun setTurnOnWin(turnNumber: Int) {
+            if (turnOnWin == null) {
+                turnOnWin = turnNumber
             }
         }
 
@@ -94,13 +101,40 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        val randomNumbers = input[0].split(",").asSequence().map { it.toInt() }.toList()
+
+        val bingos = mutableListOf<Bingo>()
+
+        var index = 1
+        while(index < input.size) {
+            val bingo = Bingo()
+            index = bingo.load(index, input)
+            bingos.add(bingo)
+        }
+
+        var winnerCount = 0
+        var randomIndex = 0
+        var justCalledNumber = 0
+        var turnNumber = 0
+        while(winnerCount != bingos.size) {
+            ++turnNumber
+            justCalledNumber = randomNumbers[randomIndex++]
+            bingos.forEach { it.turn(justCalledNumber) }
+            winnerCount = bingos.count { it.isWinner() }
+            bingos.asSequence().filter { it.isWinner() }.forEach { it.setTurnOnWin(turnNumber) }
+        }
+
+        bingos.sortBy {
+            - it.turnOnWin!!
+        }
+        val loser = bingos[0]
+
+        return loser.unmarkedSum * justCalledNumber
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day04_test")
-    check(part1(testInput) == 4512)
-    // 12924 bad
+    check(part2(testInput) == 1924)
 
     val input = readInput("Day04")
     println(part1(input))
