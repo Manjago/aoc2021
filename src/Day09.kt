@@ -1,34 +1,26 @@
 fun main() {
 
-    fun inBound(x: Int, bound: Int) : Boolean = x in 0 until bound
-
-    fun isLessThan(data: Array<IntArray>, width: Int, height: Int, x: Int, y: Int, pretender: Int) : Boolean =
-        if (inBound(x, width) && inBound(y, height)) {
-            pretender < data[y][x]
-        } else {
-            true
-        }
-
     fun part1(input: List<String>): Int {
 
-        val width = input[0].length
-        val height = input.size
+        val board = IntBoard(input[0].length, input.size)
 
-        val data = Array(height) {IntArray(width)}
-        for(i in input.indices) {
-            data[i] = input[i].toCharArray().asSequence().map { it.toString().toInt() }.toList().toIntArray()
+        for(j in input.indices) {
+            val row = input[j].toCharArray().asSequence().map { it.toString().toInt() }.toList().toIntArray()
+            for(i in row.indices) {
+                board.setValue(i, j, row[i])
+            }
         }
 
         var sum = 0
-        for(y in 0 until height) {
-            for (x in 0 until  width) {
+        for(y in 0 until board.height) {
+            for (x in 0 until  board.width) {
 
-                val pretender = data[y][x]
+                val pretender = board.getValue(x, y)
                 if (
-                    isLessThan(data, width, height, x - 1, y, pretender) &&
-                    isLessThan(data, width, height, x + 1, y , pretender) &&
-                    isLessThan(data, width, height, x, y - 1, pretender) &&
-                    isLessThan(data, width, height, x, y + 1, pretender)
+                    pretender < board.safeGetValue(x - 1, y, Int.MAX_VALUE) &&
+                    pretender < board.safeGetValue(x + 1, y, Int.MAX_VALUE) &&
+                    pretender < board.safeGetValue(x, y - 1, Int.MAX_VALUE) &&
+                    pretender < board.safeGetValue(x, y + 1, Int.MAX_VALUE)
                         ) {
                     sum += pretender + 1
                 }
