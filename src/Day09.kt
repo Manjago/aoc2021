@@ -16,12 +16,10 @@ fun main() {
             for (x in 0 until  board.width) {
 
                 val pretender = board.getValue(x, y)
-                if (
-                    pretender < board.safeGetValue(x - 1, y, Int.MAX_VALUE) &&
-                    pretender < board.safeGetValue(x + 1, y, Int.MAX_VALUE) &&
-                    pretender < board.safeGetValue(x, y - 1, Int.MAX_VALUE) &&
-                    pretender < board.safeGetValue(x, y + 1, Int.MAX_VALUE)
-                        ) {
+
+                if (!board.neighbours(x, y).any {
+                        pretender >= board[it]
+                    }) {
                     sum += pretender + 1
                 }
             }
@@ -40,6 +38,8 @@ fun main() {
     check(testPart1 == 15) {"test part1 = $testPart1"}
 
     val input = readInput("Day09")
-    println(part1(input))
+    val part1 = part1(input)
+    check(part1 == 566) {"part1 = $part1"}
+    println(part1)
     println(part2(input))
 }
