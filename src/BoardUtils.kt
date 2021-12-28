@@ -1,24 +1,39 @@
-data class Point(val x: Int, val y: Int)
+enum class Direction(val x: Int, val y: Int) {
+    NORTH(0, -1), SOUTH(0, 1), WEST(-1, 0), EAST(1, 0)
+}
+
+data class Point(val x: Int, val y: Int) {
+    fun neighbour(direction: Direction) = Point(this.x + direction.x, this.y + direction.y)
+}
+
 data class IntBoard(val width: Int, val height: Int) {
     private val data = Array(height) { IntArray(width) }
 
-    fun setValue(x: Int, y: Int, value: Int) {
-        data[y][x] = value
+    operator fun get(point: Point): Int = data[point.y][point.x]
+    operator fun set(point: Point, value: Int) {
+        data[point.y][point.x] = value
     }
 
-    fun getValue(x: Int, y: Int): Int = data[y][x]
-
-    operator fun get(point: Point) : Int = getValue(point.x, point.y)
-
-    fun neighbours(x: Int, y: Int): Sequence<Point> {
+    fun neighbours(point: Point): Sequence<Point> {
         val list = mutableListOf<Point>()
-        if (bounded(x + 1, y)) list.add(Point(x + 1, y))
-        if (bounded(x - 1, y)) list.add(Point(x - 1, y))
-        if (bounded(x, y + 1)) list.add(Point(x, y + 1))
-        if (bounded(x, y - 1)) list.add(Point(x, y - 1))
+        for (direction in Direction.values()) {
+            with(point.neighbour(direction)) {
+                if (bounded(this)) list.add(this)
+            }
+        }
         return list.asSequence()
     }
 
-    private fun bounded(x: Int, y: Int) = x in 0 until width && y in 0 until height
+    fun all(): Sequence<Point> = generateSequence(Point(0, 0)) {
+        it.next()
+    }
+
+    private fun bounded(point: Point) = point.x in 0 until width && point.y in 0 until height
+
+    private fun Point.next(): Point? = when {
+        x == width - 1 && y == height - 1 -> null
+        x == width - 1 -> Point(0, y + 1)
+        else -> Point(x + 1, y)
+    }
 
 }

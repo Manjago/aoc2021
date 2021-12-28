@@ -1,34 +1,32 @@
 fun main() {
 
-    fun part1(input: List<String>): Int {
-
+    fun loadBoard(input: List<String>): IntBoard {
         val board = IntBoard(input[0].length, input.size)
 
-        for(j in input.indices) {
+        for (j in input.indices) {
             val row = input[j].toCharArray().asSequence().map { it.toString().toInt() }.toList().toIntArray()
-            for(i in row.indices) {
-                board.setValue(i, j, row[i])
+            for (i in row.indices) {
+                board[Point(i, j)] = row[i]
             }
         }
+        return board
+    }
 
-        var sum = 0
-        for(y in 0 until board.height) {
-            for (x in 0 until  board.width) {
-
-                val pretender = board.getValue(x, y)
-
-                if (!board.neighbours(x, y).any {
-                        pretender >= board[it]
-                    }) {
-                    sum += pretender + 1
-                }
+    fun part1(input: List<String>): Int = with(loadBoard(input)) {
+        all().sumOf {
+            val pretender = this[it]
+            if (!neighbours(it).any {
+                    pretender >= this[it]
+                }) {
+                pretender + 1
+            } else {
+                0
             }
         }
-
-        return sum
     }
 
     fun part2(input: List<String>): Int {
+
         return input.size
     }
 
