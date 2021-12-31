@@ -51,15 +51,28 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        val board = IntBoard.loadBoard(input)
+
+        var flashed = 0
+        var counter = 0
+        while(flashed != board.height*board.width) {
+            flashed = step(board)
+            ++counter
+        }
+
+        return counter
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day11_test")
     val testPart1 = part1(testInput)
     check(testPart1 == 1656) {"test part1 $testPart1"}
+    val testPart2 = part2(testInput)
+    check(testPart2 == 195) {"test part2 $testPart2"}
 
     val input = readInput("Day11")
-    println(part1(input))
-    println(part2(input))
+    val part1 = part1(input)
+    check(part1 == 1634) {"part1 $part1"}
+    val part2 = part2(input)
+    check(part2 == 210) {"part2 $part2"}
 }
