@@ -9,6 +9,11 @@ fun readInput(name: String) = File("src", "$name.txt").readLines()
 
 fun stringAsInts(string: String) = string.split(",").asSequence().map { it.toInt() }.toList()
 
+fun <T> List<T>.mutableCopyOf(): MutableList<T> {
+    val original = this
+    return mutableListOf<T>().apply { addAll(original) }
+}
+
 /**
  * Converts string to md5 hash.
  */
