@@ -1,18 +1,6 @@
 fun main() {
 
-    fun loadBoard(input: List<String>): IntBoard {
-        val board = IntBoard(input[0].length, input.size)
-
-        for (j in input.indices) {
-            val row = input[j].toCharArray().asSequence().map { it.toString().toInt() }.toList().toIntArray()
-            for (i in row.indices) {
-                board[Point(i, j)] = row[i]
-            }
-        }
-        return board
-    }
-
-    fun part1(input: List<String>): Int = with(loadBoard(input)) {
+    fun part1(input: List<String>): Int = with(IntBoard.loadBoard(input)) {
         all().sumOf { point ->
             val currentValue = this[point]
             if (!neighbours(point).any {
@@ -43,7 +31,7 @@ fun main() {
 
     fun part2(input: List<String>): Int {
 
-        val board = loadBoard(input)
+        val board = IntBoard.loadBoard(input)
         val sumList = mutableListOf<Int>()
 
         basinCenters(board, board.all()).forEach { basinCenter ->
@@ -77,6 +65,6 @@ fun main() {
     val input = readInput("Day09")
     val part1 = part1(input)
     check(part1 == 566) {"part1 = $part1"}
-    println(part1)
-    println(part2(input))
+    val part2 = part2(input)
+    check(part2 == 891684) {"part2 = $part2"}
 }
