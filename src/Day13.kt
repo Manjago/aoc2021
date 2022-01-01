@@ -51,8 +51,7 @@ fun main() {
         this.foldY(point.y)
     }
 
-    fun part1(input: List<String>): Int {
-
+    fun loadBoard(input: List<String>): IntBoard {
         val points = input.asSequence().filter { it.isNotEmpty() && it[0] != 'f' }
             .map {
                 val coord = it.split(",")
@@ -62,7 +61,10 @@ fun main() {
         val maxY = points.maxOf { it.y }
         val board = IntBoard(maxX + 1, maxY + 1)
         points.forEach { board[it] = 1 }
+        return board
+    }
 
+    fun loadCommands(input: List<String>): List<Point> {
         val commands = input.asSequence().filter {
             it.isNotEmpty() && it[0] == 'f'
         }.map {
@@ -73,14 +75,34 @@ fun main() {
                 else -> error("bad tokens from $tokens")
             }
         }.toList()
+        return commands
+    }
+
+    fun part1(input: List<String>): Int {
+
+        val board = loadBoard(input)
+
+        val commands = loadCommands(input)
 
         val foldedBoard = board.fold(commands.first())
 
         return foldedBoard.all().count { foldedBoard[it] > 0 }
     }
 
-    fun part2(input: List<String>): Int {
-        return input.size
+    fun part2(input: List<String>): String {
+
+        val board = loadBoard(input)
+
+        val commands = loadCommands(input)
+
+        var foldedBoard = board
+        for(command in commands) {
+            foldedBoard = foldedBoard.fold(command)
+        }
+
+        foldedBoard.all().forEach { if (foldedBoard[it] > 0) foldedBoard[it] = 8 }
+
+        return foldedBoard.display()
     }
 
     // test if implementation meets criteria from the description, like:
@@ -89,6 +111,11 @@ fun main() {
     check(testPart1 == 17) { "test part1 = $testPart1 "}
 
     val input = readInput("Day13")
-    println(part1(input))
+    val part1 = part1(input)
+    check(part1 == 678) { "part1 = $part1 "}
+    println(part1)
+
+    println(part2(testInput))
+
     println(part2(input))
 }
