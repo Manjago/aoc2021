@@ -34,7 +34,45 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        val graph = GraphSimple.loadBidirectional(input)
+
+        val queue = ArrayDeque<SavedPath>()
+        val initPath = SavedPath().visit("start")
+        queue += initPath
+        val visited = mutableSetOf<SavedPath>()
+
+        while(queue.isNotEmpty()) {
+            val path = queue.removeFirst()
+            if (visited.contains(path)) {
+                continue
+            } else {
+                visited += path
+            }
+
+            if (path.value.last() == "end") {
+                continue
+            }
+
+            // already has two-visited small cave?
+            val hasTwoVisitedSmallCave = path.value.filter { it.isLower() }
+                .groupingBy { it }.eachCount().filter { it.value > 1 }.isNotEmpty()
+
+            if (hasTwoVisitedSmallCave) {
+                val visitedSmallCaves = path.value.asSequence().filter { it.isLower() }.toSet()
+                graph.neighbours(path.value.last()).filter { !visitedSmallCaves.contains(it) }.forEach {
+                    queue += path.xcopy().visit(it)
+                }
+            } else {
+                graph.neighbours(path.value.last()).filter { it != "start" }.forEach {
+                    queue += path.xcopy().visit(it)
+                }
+            }
+
+        }
+
+        val refined = visited.asSequence().filter { it.value.last() == "end" }.toList()
+
+        return refined.size
     }
 
     // test if implementation meets criteria from the description, like:
@@ -62,5 +100,5 @@ fun main() {
     val test2part2 = part2(testInput2)
     check(test2part2 == 3509) {"test2part2 = $test2part2"}
 
-    //println(part2(input))
+    println(part2(input))
 }
