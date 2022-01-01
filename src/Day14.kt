@@ -27,8 +27,12 @@ fun main() {
         }.toMap()
 
         var polymer = template
+        var counter = 0
         repeat(stepCount) {
+            ++counter
+            println("before step $counter/$stepCount")
             polymer = step(polymer, rules)
+            println("after step $counter/$stepCount")
         }
         return polymer
     }
@@ -46,7 +50,21 @@ fun main() {
 
     fun part2(input: List<String>): Long {
 
-        return 1L
+        val polymer = makePolymer(input, 40)
+
+        val freq = mutableMapOf<Char, Long>()
+        for(char in polymer) {
+            if (freq.containsKey(char)) {
+                freq[char] = freq[char]!! + 1L
+            } else {
+                freq[char] = 1L
+            }
+        }
+
+        val max = freq.maxOf { it.value }
+        val min = freq.minOf { it.value }
+
+        return max - min
     }
 
     // test if implementation meets criteria from the description, like:
@@ -58,5 +76,9 @@ fun main() {
     val part1 = part1(input)
     check(part1 == 2851) { "part1 = $part1 " }
     println(part1)
+
+    val testPart2 = part2(testInput)
+    check(testPart2 == 2188189693529L) { "test part2 = $testPart2 " }
+
     println(part2(input))
 }
