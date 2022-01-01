@@ -20,17 +20,22 @@ fun main() {
         }.filterNotNull().toList()
     }
 
-    fun part1(input: List<String>): Int {
-
+    fun makePolymer(input: List<String>, stepCount: Int): List<Char> {
         val template = input[0].toCharArray().toList()
         val rules = input.asSequence().drop(2).map {
             it.substringBefore(" -> ").toCharArray().toList() to it.substringAfter(" -> ")[0]
         }.toMap()
 
         var polymer = template
-        repeat(10) {
+        repeat(stepCount) {
             polymer = step(polymer, rules)
         }
+        return polymer
+    }
+
+    fun part1(input: List<String>): Int {
+
+        val polymer = makePolymer(input, 10)
 
         val freq = polymer.groupingBy { it }.eachCount()
         val max = freq.maxOf { it.value }
@@ -39,8 +44,9 @@ fun main() {
         return max - min
     }
 
-    fun part2(input: List<String>): Int {
-        return input.size
+    fun part2(input: List<String>): Long {
+
+        return 1L
     }
 
     // test if implementation meets criteria from the description, like:
