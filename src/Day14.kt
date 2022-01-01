@@ -49,6 +49,8 @@ fun main() {
     check(testPart1 == 1588) { "test part1 = $testPart1 " }
 
     val input = readInput("Day14")
-    println(part1(input))
+    val part1 = part1(input)
+    check(part1 == 2851) { "part1 = $part1 " }
+    println(part1)
     println(part2(input))
 }
