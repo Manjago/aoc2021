@@ -18,6 +18,10 @@ fun main() {
                 visited += path
             }
 
+            if (path.value.last() == "end") {
+                continue
+            }
+
             val visitedSmallCaves = path.value.asSequence().filter { it.isLower() }.toSet()
             graph.neighbours(path.value.last()).filter { !visitedSmallCaves.contains(it) }.forEach {
                 queue += path.xcopy().visit(it)
@@ -47,6 +51,16 @@ fun main() {
     check(test2part1 == 226) {"test2part1 = $test2part1"}
 
     val input = readInput("Day12")
-    println(part1(input))
+    val part1 = part1(input)
+    check(part1 == 5576) {"part1 = $part1"}
+    println(part1)
+
+    val test0part2 = part2(testInput0)
+    check(test0part2 == 36) {"test0part2 = $test0part2"}
+    val test1part2 = part2(testInput1)
+    check(test1part2 == 103) {"test1part2 = $test1part2"}
+    val test2part2 = part2(testInput2)
+    check(test2part2 == 3509) {"test2part2 = $test2part2"}
+
     //println(part2(input))
 }
