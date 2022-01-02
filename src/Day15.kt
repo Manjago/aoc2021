@@ -1,5 +1,9 @@
 fun main() {
     fun part1(input: List<String>): Int {
+
+        val board = IntBoard.loadBoard(input)
+
+
         return input.size
     }
 
@@ -7,11 +11,11 @@ fun main() {
         return input.size
     }
 
-    // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day14_test")
-    check(part1(testInput) == 1)
+    val testInput = readInput("Day15_test")
+    val testPart1 = part1(testInput)
+    check(testPart1 == 40) {"test part1 = $testPart1"}
 
-    val input = readInput("Day14")
+    val input = readInput("Day15")
     println(part1(input))
     println(part2(input))
 }

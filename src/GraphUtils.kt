@@ -1,9 +1,9 @@
-interface Graph {
-    fun addEdge(from: String, to: String)
-    fun neighbours(vertex: String) : Sequence<String>
+interface Graph<V> {
+    fun addEdge(from: V, to: V)
+    fun neighbours(vertex: V) : Sequence<V>
 }
 
-data class GraphSimple(private val data: MutableMap<String, MutableSet<String>> = mutableMapOf()) : Graph {
+data class GraphSimple(private val data: MutableMap<String, MutableSet<String>> = mutableMapOf()) : Graph<String> {
 
     override fun addEdge(from: String, to: String) {
         if (!data.containsKey(from)) {
@@ -20,7 +20,7 @@ data class GraphSimple(private val data: MutableMap<String, MutableSet<String>> 
 
 
     companion object {
-        fun loadBidirectional(input: List<String>): Graph {
+        fun loadBidirectional(input: List<String>): Graph<String> {
             val graph = GraphSimple()
             input.asSequence().forEach {
                 val vertexes = it.split("-")
@@ -33,10 +33,10 @@ data class GraphSimple(private val data: MutableMap<String, MutableSet<String>> 
 
 }
 
-data class SavedPath(val value: MutableList<String> = mutableListOf()) {
-    fun visit(vertex: String) : SavedPath {
+data class SavedPath<V>(val value: MutableList<V> = mutableListOf()) {
+    fun visit(vertex: V) : SavedPath<V> {
         value += vertex
         return this
     }
-    fun xcopy() : SavedPath = SavedPath(value.mutableCopyOf())
+    fun xcopy() : SavedPath<V> = SavedPath(value.mutableCopyOf())
 }

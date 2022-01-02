@@ -5,10 +5,10 @@ fun main() {
     fun part1(input: List<String>): Int {
         val graph = GraphSimple.loadBidirectional(input)
 
-        val queue = ArrayDeque<SavedPath>()
-        val initPath = SavedPath().visit("start")
+        val queue = ArrayDeque<SavedPath<String>>()
+        val initPath = SavedPath<String>().visit("start")
         queue += initPath
-        val visited = mutableSetOf<SavedPath>()
+        val visited = mutableSetOf<SavedPath<String>>()
 
         while(queue.isNotEmpty()) {
             val path = queue.removeFirst()
@@ -36,10 +36,10 @@ fun main() {
     fun part2(input: List<String>): Int {
         val graph = GraphSimple.loadBidirectional(input)
 
-        val queue = ArrayDeque<SavedPath>()
-        val initPath = SavedPath().visit("start")
+        val queue = ArrayDeque<SavedPath<String>>()
+        val initPath = SavedPath<String>().visit("start")
         queue += initPath
-        val visited = mutableSetOf<SavedPath>()
+        val visited = mutableSetOf<SavedPath<String>>()
 
         while(queue.isNotEmpty()) {
             val path = queue.removeFirst()
@@ -100,5 +100,7 @@ fun main() {
     val test2part2 = part2(testInput2)
     check(test2part2 == 3509) {"test2part2 = $test2part2"}
 
-    println(part2(input))
+    val part2 = part2(input)
+    check(part2 == 152837) {"part2 = $part2"}
+    println(part2)
 }
