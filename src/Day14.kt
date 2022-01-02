@@ -1,11 +1,11 @@
-typealias Polymer = Map<String, Long>
-typealias PolymerRules = Map<String, List<String>>
-typealias MutablePolymer = MutableMap<String, Long>
+typealias CoupleLetters = String
+typealias Polymer = Map<CoupleLetters, Long>
+typealias PolymerRules = Map<CoupleLetters, List<String>>
 
 fun main() {
 
-    fun step(source: Polymer, polymerRules: PolymerRules): Polymer {
-      val answer = mutableMapOf<String, Long>()
+    fun polymerizationStep(source: Polymer, polymerRules: PolymerRules): Polymer {
+      val answer = mutableMapOf<CoupleLetters, Long>()
       source.asSequence().forEach { pair ->
           val polymerRule = polymerRules[pair.key] ?: error("not found rule for ${pair.key}")
 
@@ -64,16 +64,13 @@ fun main() {
         }.toMap()
 
         repeat(stepCount) {
-            polymer = step(polymer, polymerRules)
+            polymer = polymerizationStep(polymer, polymerRules)
         }
         return polymer
     }
 
 
-    fun part1(input: List<String>): Long {
-
-        val polymer = makePolymer(input, 10)
-
+    fun calcAnswer(polymer: Polymer): Long {
         val distribution = letterDistribution(polymer)
         val maxFreq = distribution.maxOf { it.value }
         val minFreq = distribution.minOf { it.value }
@@ -81,16 +78,9 @@ fun main() {
         return maxFreq - minFreq
     }
 
-    fun part2(input: List<String>): Long {
-        val polymer = makePolymer(input, 40)
+    fun part1(input: List<String>): Long = calcAnswer(makePolymer(input, 10))
 
-        val distribution = letterDistribution(polymer)
-        val maxFreq = distribution.maxOf { it.value }
-        val minFreq = distribution.minOf { it.value }
-
-        return maxFreq - minFreq
-
-    }
+    fun part2(input: List<String>): Long = calcAnswer(makePolymer(input, 40))
 
     val testInput = readInput("Day14_test")
     val testPart1 = part1(testInput)
