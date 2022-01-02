@@ -1,5 +1,19 @@
 fun main() {
 
+    fun stepOptimal(source: Node<Char>, rule: (Char,Char) -> Char?) {
+         var pointer = source
+         var next = pointer.next
+         while(next != null) {
+            val charToInsert = rule(pointer.value, next.value)
+            if (charToInsert != null) {
+                val inserted = Node(charToInsert, next)
+                pointer.next = inserted
+            }
+            pointer = next
+            next = next.next
+        }
+    }
+
     fun step(source: List<Char>, rules: Map<List<Char>, Char>): List<Char> {
         var firstEnter = true
         return source.asSequence().windowed(2).flatMap {
@@ -20,6 +34,43 @@ fun main() {
         }.filterNotNull().toList()
     }
 
+    fun makePolymerOptimal(input: List<String>, stepCount: Int): Node<Char> {
+        val head = Node('z', null)
+        var pointer = head
+        input[0].toCharArray().forEach {
+            pointer.next = Node(it, null)
+            pointer = pointer.next!!
+        }
+        val polymer = head.next!!
+
+        val rules = input.asSequence().drop(2).map {
+            val result = CharArray(3)
+            val key = it.substringBefore(" -> ").toCharArray()
+            val value = it.substringAfter(" -> ")[0]
+            result[0] = key[0]
+            result[1] = key[1]
+            result[2] = value
+            result
+        }.toList()
+
+        repeat(stepCount) {
+            stepOptimal(polymer) { char, charNext ->
+
+                val rule = rules.firstOrNull {
+                    it[0] == char && it[1] == charNext
+                }
+                if (rule != null) {
+                    rule[2]
+                } else {
+                    null
+                }
+
+            }
+        }
+
+        return polymer
+    }
+
     fun makePolymer(input: List<String>, stepCount: Int): List<Char> {
         val template = input[0].toCharArray().toList()
         val rules = input.asSequence().drop(2).map {
@@ -27,12 +78,8 @@ fun main() {
         }.toMap()
 
         var polymer = template
-        var counter = 0
         repeat(stepCount) {
-            ++counter
-            println("before step $counter/$stepCount")
             polymer = step(polymer, rules)
-            println("after step $counter/$stepCount")
         }
         return polymer
     }
@@ -50,17 +97,20 @@ fun main() {
 
     fun part2(input: List<String>): Long {
 
-        val polymer = makePolymer(input, 40)
+        val polymer = makePolymerOptimal(input, 40)
 
         val freq = mutableMapOf<Char, Long>()
-        for(char in polymer) {
+
+        var pointer: Node<Char>? = polymer
+        while(pointer != null) {
+            val char = pointer!!.value
             if (freq.containsKey(char)) {
                 freq[char] = freq[char]!! + 1L
             } else {
                 freq[char] = 1L
             }
+            pointer = pointer!!.next
         }
-
         val max = freq.maxOf { it.value }
         val min = freq.minOf { it.value }
 
