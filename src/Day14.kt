@@ -4,32 +4,33 @@ typealias PolymerRules = Map<CoupleLetters, List<String>>
 
 fun main() {
 
-    fun polymerizationStep(source: Polymer, polymerRules: PolymerRules): Polymer {
-      val answer = mutableMapOf<CoupleLetters, Long>()
-      source.asSequence().forEach { pair ->
-          val polymerRule = polymerRules[pair.key] ?: error("not found rule for ${pair.key}")
+    fun polymerizationStep(source: Polymer, polymerRules: PolymerRules): Polymer =
+        source.asSequence().fold(mutableMapOf<CoupleLetters, Long>()) { acc, coupleLettersStat ->
 
-          polymerRule.forEach {
-              if (answer.containsKey(it)) {
-                  answer[it] = answer[it]!! + pair.value
-              } else {
-                  answer[it] = pair.value
-              }
-          }
-      }
-      return answer.toMap()
-    }
+            val polymerRule = polymerRules[coupleLettersStat.key] ?: error("not found rule for ${coupleLettersStat.key}")
 
-    fun letterDistribution(polymer: Polymer) : Map<Char, Long> {
-        val answer = mutableMapOf<Char, Long>()
-        polymer.asSequence().forEach { pair ->
-            pair.key.toCharArray().forEach {
-                if (answer.containsKey(it)) {
-                    answer[it] = answer[it]!! + pair.value
+            polymerRule.forEach {
+                if (acc.containsKey(it)) {
+                    acc[it] = acc[it]!! + coupleLettersStat.value
                 } else {
-                    answer[it] = pair.value
+                    acc[it] = coupleLettersStat.value
                 }
             }
+
+            acc
+        }.toMap()
+
+    fun letterDistribution(polymer: Polymer): Map<Char, Long> {
+
+        val preAnswer = polymer.asSequence().fold(mutableMapOf<Char, Long>()) { acc, coupleLettersStat ->
+            coupleLettersStat.key.toCharArray().forEach {
+                if (acc.containsKey(it)) {
+                    acc[it] = acc[it]!! + coupleLettersStat.value
+                } else {
+                    acc[it] = coupleLettersStat.value
+                }
+            }
+            acc
         }
         /*
         NNCB
@@ -41,7 +42,7 @@ fun main() {
         H = 322 / 2 = 161
 
          */
-        return answer.asSequence().map {
+        return preAnswer.asSequence().map {
             val newValue = if (it.value % 2 != 0L) {
                 (it.value + 1) / 2
             } else {
