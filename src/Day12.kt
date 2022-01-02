@@ -1,3 +1,6 @@
+import graph.GraphSimple
+import graph.SavedPath
+
 fun main() {
 
     fun String.isLower() = this.toCharArray().asSequence().all { it.isLowerCase() }
