@@ -1,4 +1,5 @@
 import graph.GraphIntBoard
+import kotlin.system.measureTimeMillis
 
 fun main() {
 
@@ -13,16 +14,21 @@ fun main() {
         val vertexCount = board.height * board.width
 
         while (visited.size < vertexCount) {
-            val u = board.all().filter { !visited.contains(it) }.sortedBy { labels[it] }.first()
-            graph.neighboursWithEdgeWeight(u).filter { vertexAndWeight ->
-                !visited.contains(vertexAndWeight.vertex)
-            }.forEach {
-                val newLen = labels[u]!! + it.weight
-                if (newLen < labels[it.vertex]!!) {
-                    labels[it.vertex] = newLen
+
+            val elapsed = measureTimeMillis {
+                val u = board.all().filter { !visited.contains(it) }.sortedBy { labels[it] }.first()
+                graph.neighboursWithEdgeWeight(u).filter { vertexAndWeight ->
+                    !visited.contains(vertexAndWeight.vertex)
+                }.forEach {
+                    val newLen = labels[u]!! + it.weight
+                    if (newLen < labels[it.vertex]!!) {
+                        labels[it.vertex] = newLen
+                    }
                 }
+                visited.add(u)
             }
-            visited.add(u)
+
+            println("step ${visited.size} of $vertexCount elapsed $elapsed millis")
         }
 
         return labels[Point(board.width - 1, board.height - 1)]!!
@@ -89,6 +95,7 @@ fun main() {
             resultBoard = resultBoard.addBottom(workBoard)
         }
 
+        println("wanna solve dijkstra")
         return dijkstra(resultBoard)
     }
 
