@@ -1,4 +1,6 @@
+import graph.Graph
 import graph.GraphIntBoard
+import java.util.PriorityQueue
 import kotlin.system.measureTimeMillis
 
 fun main() {
@@ -34,9 +36,45 @@ fun main() {
         return labels[Point(board.width - 1, board.height - 1)]!!
     }
 
+    fun dijkstraQueue(board: IntBoard): Int {
+        val graph = GraphIntBoard(board)
+        val labels = board.all().map {
+            it to
+                    (if (it == Point(0, 0)) 0 else Int.MAX_VALUE)
+        }.toMap().toMutableMap()
+        val visited = mutableSetOf<Point>()
+        val vertexCount = board.height * board.width
+
+        val queue = PriorityQueue<Graph.VertexWithEdgeWeight<Point>> { o1, o2 -> o1.weight.compareTo(o2.weight)  }
+        queue.add(Graph.VertexWithEdgeWeight(Point(0, 0), 0))
+
+        while (queue.isNotEmpty()) {
+
+            val elapsed = measureTimeMillis {
+                val u = queue.remove().vertex
+                if (!visited.contains(u)) {
+                    graph.neighboursWithEdgeWeight(u).filter { vertexAndWeight ->
+                        !visited.contains(vertexAndWeight.vertex)
+                    }.forEach {
+                        val newLen = labels[u]!! + it.weight
+                        if (newLen < labels[it.vertex]!!) {
+                            labels[it.vertex] = newLen
+                            queue.add(Graph.VertexWithEdgeWeight(it.vertex, newLen))
+                        }
+                    }
+                    visited.add(u)
+                }
+            }
+
+            println("step ${visited.size} of $vertexCount elapsed $elapsed millis queue ${queue.size}")
+        }
+
+        return labels[Point(board.width - 1, board.height - 1)]!!
+    }
+
     fun part1(input: List<String>): Int {
         val board = IntBoard.loadBoard(input)
-        return dijkstra(board)
+        return dijkstraQueue(board)
     }
 
     fun IntBoard.addRight(otherBoard: IntBoard): IntBoard {
@@ -96,7 +134,7 @@ fun main() {
         }
 
         println("wanna solve dijkstra")
-        return dijkstra(resultBoard)
+        return dijkstraQueue(resultBoard)
     }
 
     val testInput = readInput("Day15_test")
@@ -111,5 +149,7 @@ fun main() {
     val testPart2 = part2(testInput)
     check(testPart2 == 315) { "test part2 = $testPart2" }
 
-    println(part2(input))
+    val part2 = part2(input)
+    check(part2 == 2846) { "part2 = $part2" }
+    println(part2)
 }
