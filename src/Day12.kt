@@ -1,19 +1,19 @@
-import graph.GraphSimple
 import graph.SavedPath
+import graph.loadBidirectional
 
 fun main() {
 
     fun String.isLower() = this.toCharArray().asSequence().all { it.isLowerCase() }
 
     fun part1(input: List<String>): Int {
-        val graph = GraphSimple.loadBidirectional(input)
+        val graph = loadBidirectional(input)
 
         val queue = ArrayDeque<SavedPath<String>>()
         val initPath = SavedPath<String>().visit("start")
         queue += initPath
         val visited = mutableSetOf<SavedPath<String>>()
 
-        while(queue.isNotEmpty()) {
+        while (queue.isNotEmpty()) {
             val path = queue.removeFirst()
             if (visited.contains(path)) {
                 continue
@@ -37,14 +37,14 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        val graph = GraphSimple.loadBidirectional(input)
+        val graph = loadBidirectional(input)
 
         val queue = ArrayDeque<SavedPath<String>>()
         val initPath = SavedPath<String>().visit("start")
         queue += initPath
         val visited = mutableSetOf<SavedPath<String>>()
 
-        while(queue.isNotEmpty()) {
+        while (queue.isNotEmpty()) {
             val path = queue.removeFirst()
             if (visited.contains(path)) {
                 continue
@@ -81,29 +81,29 @@ fun main() {
     // test if implementation meets criteria from the description, like:
     val testInput0 = readInput("Day12_test_0")
     val test0part1 = part1(testInput0)
-    check(test0part1 == 10) {"test0part1 = $test0part1"}
+    check(test0part1 == 10) { "test0part1 = $test0part1" }
 
     val testInput1 = readInput("Day12_test_1")
     val test1part1 = part1(testInput1)
-    check(test1part1 == 19) {"test1part1 = $test1part1"}
+    check(test1part1 == 19) { "test1part1 = $test1part1" }
 
     val testInput2 = readInput("Day12_test_2")
     val test2part1 = part1(testInput2)
-    check(test2part1 == 226) {"test2part1 = $test2part1"}
+    check(test2part1 == 226) { "test2part1 = $test2part1" }
 
     val input = readInput("Day12")
     val part1 = part1(input)
-    check(part1 == 5576) {"part1 = $part1"}
+    check(part1 == 5576) { "part1 = $part1" }
     println(part1)
 
     val test0part2 = part2(testInput0)
-    check(test0part2 == 36) {"test0part2 = $test0part2"}
+    check(test0part2 == 36) { "test0part2 = $test0part2" }
     val test1part2 = part2(testInput1)
-    check(test1part2 == 103) {"test1part2 = $test1part2"}
+    check(test1part2 == 103) { "test1part2 = $test1part2" }
     val test2part2 = part2(testInput2)
-    check(test2part2 == 3509) {"test2part2 = $test2part2"}
+    check(test2part2 == 3509) { "test2part2 = $test2part2" }
 
     val part2 = part2(input)
-    check(part2 == 152837) {"part2 = $part2"}
+    check(part2 == 152837) { "part2 = $part2" }
     println(part2)
 }

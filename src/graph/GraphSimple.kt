@@ -1,31 +1,18 @@
 package graph
 
-data class GraphSimple(private val data: MutableMap<String, MutableSet<String>> = mutableMapOf()) : Graph<String> {
+data class GraphSimple<T>(private val data: MutableMap<T, MutableSet<T>> = mutableMapOf()) : Graph<T> {
 
-    override fun addEdge(from: String, to: String) {
+    override fun addEdge(from: T, to: T) {
         if (!data.containsKey(from)) {
             data[from] = mutableSetOf()
         }
         data[from]!!.add(to)
     }
 
-    override fun neighbours(vertex: String): Sequence<String> = if (!data.containsKey(vertex)) {
+    override fun neighbours(vertex: T): Sequence<T> = if (!data.containsKey(vertex)) {
         sequenceOf()
     } else {
         data[vertex]!!.asSequence()
-    }
-
-
-    companion object {
-        fun loadBidirectional(input: List<String>): Graph<String> {
-            val graph = GraphSimple()
-            input.asSequence().forEach {
-                val vertexes = it.split("-")
-                graph.addEdge(vertexes[0], vertexes[1])
-                graph.addEdge(vertexes[1], vertexes[0])
-            }
-            return graph
-        }
     }
 
 }
