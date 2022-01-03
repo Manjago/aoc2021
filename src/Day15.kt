@@ -1,41 +1,14 @@
 import graph.Graph
 import graph.GraphIntBoard
 import java.util.PriorityQueue
-import kotlin.system.measureTimeMillis
+import kotlin.time.ExperimentalTime
+import kotlin.time.TimedValue
+import kotlin.time.measureTimedValue
 
+@OptIn(ExperimentalTime::class)
 fun main() {
 
     // https://ru.wikipedia.org/wiki/%D0%90%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC_%D0%94%D0%B5%D0%B9%D0%BA%D1%81%D1%82%D1%80%D1%8B
-    fun dijkstra(board: IntBoard): Int {
-        val graph = GraphIntBoard(board)
-        val labels = board.all().map {
-            it to
-                    (if (it == Point(0, 0)) 0 else Int.MAX_VALUE)
-        }.toMap().toMutableMap()
-        val visited = mutableSetOf<Point>()
-        val vertexCount = board.height * board.width
-
-        while (visited.size < vertexCount) {
-
-            val elapsed = measureTimeMillis {
-                val u = board.all().filter { !visited.contains(it) }.sortedBy { labels[it] }.first()
-                graph.neighboursWithEdgeWeight(u).filter { vertexAndWeight ->
-                    !visited.contains(vertexAndWeight.vertex)
-                }.forEach {
-                    val newLen = labels[u]!! + it.weight
-                    if (newLen < labels[it.vertex]!!) {
-                        labels[it.vertex] = newLen
-                    }
-                }
-                visited.add(u)
-            }
-
-            println("step ${visited.size} of $vertexCount elapsed $elapsed millis")
-        }
-
-        return labels[Point(board.width - 1, board.height - 1)]!!
-    }
-
     fun dijkstraQueue(board: IntBoard): Int {
         val graph = GraphIntBoard(board)
         val labels = board.all().map {
@@ -43,30 +16,25 @@ fun main() {
                     (if (it == Point(0, 0)) 0 else Int.MAX_VALUE)
         }.toMap().toMutableMap()
         val visited = mutableSetOf<Point>()
-        val vertexCount = board.height * board.width
 
-        val queue = PriorityQueue<Graph.VertexWithEdgeWeight<Point>> { o1, o2 -> o1.weight.compareTo(o2.weight)  }
+        val queue = PriorityQueue<Graph.VertexWithEdgeWeight<Point>> { o1, o2 -> o1.weight.compareTo(o2.weight) }
         queue.add(Graph.VertexWithEdgeWeight(Point(0, 0), 0))
 
         while (queue.isNotEmpty()) {
 
-            val elapsed = measureTimeMillis {
-                val u = queue.remove().vertex
-                if (!visited.contains(u)) {
-                    graph.neighboursWithEdgeWeight(u).filter { vertexAndWeight ->
-                        !visited.contains(vertexAndWeight.vertex)
-                    }.forEach {
-                        val newLen = labels[u]!! + it.weight
-                        if (newLen < labels[it.vertex]!!) {
-                            labels[it.vertex] = newLen
-                            queue.add(Graph.VertexWithEdgeWeight(it.vertex, newLen))
-                        }
+            val u = queue.remove().vertex
+            if (!visited.contains(u)) {
+                graph.neighboursWithEdgeWeight(u).filter { vertexAndWeight ->
+                    !visited.contains(vertexAndWeight.vertex)
+                }.forEach {
+                    val newLen = labels[u]!! + it.weight
+                    if (newLen < labels[it.vertex]!!) {
+                        labels[it.vertex] = newLen
+                        queue.add(Graph.VertexWithEdgeWeight(it.vertex, newLen))
                     }
-                    visited.add(u)
                 }
+                visited.add(u)
             }
-
-            println("step ${visited.size} of $vertexCount elapsed $elapsed millis queue ${queue.size}")
         }
 
         return labels[Point(board.width - 1, board.height - 1)]!!
@@ -109,11 +77,11 @@ fun main() {
         return result
     }
 
-    fun IntBoard.incRotate(limit: Int) : IntBoard {
+    fun IntBoard.incRotate(limit: Int): IntBoard {
         val result = IntBoard(width, height)
         this.all().forEach {
             val newValue = this[it] + 1
-            result[it] =  if (newValue > limit) 1 else newValue
+            result[it] = if (newValue > limit) 1 else newValue
         }
         return result
     }
@@ -133,7 +101,6 @@ fun main() {
             resultBoard = resultBoard.addBottom(workBoard)
         }
 
-        println("wanna solve dijkstra")
         return dijkstraQueue(resultBoard)
     }
 
@@ -142,14 +109,14 @@ fun main() {
     check(testPart1 == 40) { "test part1 = $testPart1" }
 
     val input = readInput("Day15")
-    val part1 = part1(input)
-    check(part1 == 462) { "part1 = $part1" }
-    println(part1)
+    val part1: TimedValue<Int> = measureTimedValue { part1(input) }
+    check(part1.value == 462) { "part1 = ${part1.value}" }
+    println("part1 answer ${part1.value}, elapsed ${part1.duration}")
 
     val testPart2 = part2(testInput)
     check(testPart2 == 315) { "test part2 = $testPart2" }
 
-    val part2 = part2(input)
-    check(part2 == 2846) { "part2 = $part2" }
-    println(part2)
+    val part2: TimedValue<Int> = measureTimedValue { part2(input) }
+    check(part2.value == 2846) { "part2 = ${part2.value}" }
+    println("part2 answer ${part2.value}, elapsed ${part2.duration}")
 }
