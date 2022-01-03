@@ -53,6 +53,14 @@ data class IntBoard(val width: Int, val height: Int) {
         return sb.toString()
     }
 
+    fun xcopy() : IntBoard {
+        val result = IntBoard(width, height)
+        this.all().forEach {
+            result[it] =  this[it]
+        }
+        return result
+    }
+
     companion object {
         fun loadBoard(input: List<String>): IntBoard {
             val board = IntBoard(input[0].length, input.size)
