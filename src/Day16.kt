@@ -1,3 +1,5 @@
+import java.math.BigInteger
+
 fun main() {
 
     val dict = mapOf(
@@ -27,7 +29,7 @@ fun main() {
         }
     }
 
-    data class LiteralPacket(override val version: Int, val data: Long) : Packet(version, 4)
+    data class LiteralPacket(override val version: Int, val data: BigInteger) : Packet(version, 4)
     data class OperatorPacket(
         override val version: Int,
         override val typeId: Int,
@@ -47,14 +49,14 @@ fun main() {
         return result
     }
 
-    fun bitsToLong(bits: ByteArray, range: IntRange = 0 until bits.size): Long {
-        var result = 0L
-        var mult = 1
+    fun bitsToBigInteger(bits: ByteArray, range: IntRange = 0 until bits.size): BigInteger {
+        var result = BigInteger.ZERO
+        var mult = BigInteger.ONE
         range.reversed().forEach {
             if (bits[it] != zero) {
                 result += mult
             }
-            mult *= 2
+            mult *= BigInteger.TWO
         }
         return result
     }
@@ -78,7 +80,7 @@ fun main() {
                 list.add(bits[it])
             }
 
-            ParsedPacket(LiteralPacket(version, bitsToLong(list.toByteArray())), index + 5)
+            ParsedPacket(LiteralPacket(version, bitsToBigInteger(list.toByteArray())), index + 5)
         } else {
             val lengthTypeId = bits[startIndex + 6].toInt()
 
@@ -147,7 +149,7 @@ fun main() {
         return sum
     }
 
-    fun evaluate(packet: Packet): Long {
+    fun evaluate(packet: Packet): BigInteger {
 
         if (packet is LiteralPacket) {
             return packet.data
@@ -157,7 +159,7 @@ fun main() {
         when (packet.typeId) {
             0 -> return packet.subPackets.sumOf { evaluate(it) }
             1 -> {
-                var result = 1L
+                var result = BigInteger.ONE
                 packet.subPackets.asSequence().forEach {
                     result *= evaluate(it)
                 }
@@ -169,19 +171,19 @@ fun main() {
                 check(packet.subPackets.size == 2) { "type 5 must have 2 subPackets" }
                 val p0 = evaluate(packet.subPackets[0])
                 val p1 = evaluate(packet.subPackets[1])
-                return if (p0 > p1) 1 else 0
+                return if (p0 > p1) BigInteger.ONE else BigInteger.ZERO
             }
             6 -> {
                 check(packet.subPackets.size == 2) { "type 6 must have 2 subPackets" }
                 val p0 = evaluate(packet.subPackets[0])
                 val p1 = evaluate(packet.subPackets[1])
-                return if (p0 < p1) 1 else 0
+                return if (p0 < p1) BigInteger.ONE else BigInteger.ZERO
             }
             7 -> {
                 check(packet.subPackets.size == 2) { "type 7 must have 2 subPackets" }
                 val p0 = evaluate(packet.subPackets[0])
                 val p1 = evaluate(packet.subPackets[1])
-                return if (p0 == p1) 1 else 0
+                return if (p0 == p1) BigInteger.ONE else BigInteger.ZERO
             }
 
             else -> error("unexpected typeId ${packet.typeId}")
@@ -190,7 +192,9 @@ fun main() {
 
     fun part1(input: List<String>): Int = versionsSum(parsePacket(str2BitArray(input[0])).packet)
 
-    fun part2(input: List<String>): Long = evaluate(parsePacket(str2BitArray(input[0])).packet)
+    fun part2(input: List<String>): BigInteger = evaluate(parsePacket(str2BitArray(input[0])).packet)
+
+    fun Long.toBig() : BigInteger = BigInteger.valueOf(this)
 
     with(str2BitArray("D2FE28")) {
         check(this.joinToString("") == "110100101111111000101000")
@@ -198,7 +202,7 @@ fun main() {
         check(parsedPacket is LiteralPacket)
         check(parsedPacket.version == 6) { "fail version in packet $parsedPacket" }
         check(parsedPacket.typeId == 4) { "fail typeId in packet $parsedPacket" }
-        check(parsedPacket.data == 2021L) { "fail data in packet $parsedPacket" }
+        check(parsedPacket.data == 2021L.toBig()) { "fail data in packet $parsedPacket" }
     }
 
     with(str2BitArray("38006F45291200")) {
@@ -211,11 +215,11 @@ fun main() {
         check(parsedPacket.subPackets.size == 2)
         with(parsedPacket.subPackets[0]) {
             check(this is LiteralPacket)
-            check(this.data == 10L)
+            check(this.data == 10L.toBig())
         }
         with(parsedPacket.subPackets[1]) {
             check(this is LiteralPacket)
-            check(this.data == 20L)
+            check(this.data == 20L.toBig())
         }
     }
 
@@ -229,15 +233,15 @@ fun main() {
         check(parsedPacket.subPackets.size == 3)
         with(parsedPacket.subPackets[0]) {
             check(this is LiteralPacket)
-            check(this.data == 1L)
+            check(this.data == 1L.toBig())
         }
         with(parsedPacket.subPackets[1]) {
             check(this is LiteralPacket)
-            check(this.data == 2L)
+            check(this.data == 2L.toBig())
         }
         with(parsedPacket.subPackets[2]) {
             check(this is LiteralPacket)
-            check(this.data == 3L)
+            check(this.data == 3L.toBig())
         }
 
         with(str2BitArray("8A004A801A8002F478")) {
@@ -265,15 +269,15 @@ fun main() {
         }
     }
 
-    check(evaluate(parsePacket(str2BitArray("C200B40A82")).packet) == 3L)
-    check(evaluate(parsePacket(str2BitArray("04005AC33890")).packet) == 54L)
-    check(evaluate(parsePacket(str2BitArray("880086C3E88112")).packet) == 7L)
-    check(evaluate(parsePacket(str2BitArray("CE00C43D881120")).packet) == 9L)
-    check(evaluate(parsePacket(str2BitArray("D8005AC2A8F0")).packet) == 1L)
-    check(evaluate(parsePacket(str2BitArray("F600BC2D8F")).packet) == 0L)
-    check(evaluate(parsePacket(str2BitArray("F600BC2D8F")).packet) == 0L)
-    check(evaluate(parsePacket(str2BitArray("9C005AC2F8F0")).packet) == 0L)
-    check(evaluate(parsePacket(str2BitArray("9C0141080250320F1802104A08")).packet) == 1L)
+    check(evaluate(parsePacket(str2BitArray("C200B40A82")).packet) == 3L.toBig())
+    check(evaluate(parsePacket(str2BitArray("04005AC33890")).packet) == 54L.toBig())
+    check(evaluate(parsePacket(str2BitArray("880086C3E88112")).packet) == 7L.toBig())
+    check(evaluate(parsePacket(str2BitArray("CE00C43D881120")).packet) == 9L.toBig())
+    check(evaluate(parsePacket(str2BitArray("D8005AC2A8F0")).packet) == 1L.toBig())
+    check(evaluate(parsePacket(str2BitArray("F600BC2D8F")).packet) == 0L.toBig())
+    check(evaluate(parsePacket(str2BitArray("F600BC2D8F")).packet) == 0L.toBig())
+    check(evaluate(parsePacket(str2BitArray("9C005AC2F8F0")).packet) == 0L.toBig())
+    check(evaluate(parsePacket(str2BitArray("9C0141080250320F1802104A08")).packet) == 1L.toBig())
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day16_test")
