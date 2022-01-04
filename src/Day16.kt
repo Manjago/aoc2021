@@ -147,17 +147,17 @@ fun main() {
         return sum
     }
 
-    fun evaluate(packet: Packet): Int {
+    fun evaluate(packet: Packet): Long {
 
         if (packet is LiteralPacket) {
-            return packet.data.toInt()
+            return packet.data
         }
         check(packet is OperatorPacket) { "unexpected type of packet $packet" }
 
         when (packet.typeId) {
             0 -> return packet.subPackets.sumOf { evaluate(it) }
             1 -> {
-                var result = 1
+                var result = 1L
                 packet.subPackets.asSequence().forEach {
                     result *= evaluate(it)
                 }
@@ -190,7 +190,7 @@ fun main() {
 
     fun part1(input: List<String>): Int = versionsSum(parsePacket(str2BitArray(input[0])).packet)
 
-    fun part2(input: List<String>): Int = evaluate(parsePacket(str2BitArray(input[0])).packet)
+    fun part2(input: List<String>): Long = evaluate(parsePacket(str2BitArray(input[0])).packet)
 
     with(str2BitArray("D2FE28")) {
         check(this.joinToString("") == "110100101111111000101000")
@@ -265,15 +265,15 @@ fun main() {
         }
     }
 
-    check(evaluate(parsePacket(str2BitArray("C200B40A82")).packet) == 3)
-    check(evaluate(parsePacket(str2BitArray("04005AC33890")).packet) == 54)
-    check(evaluate(parsePacket(str2BitArray("880086C3E88112")).packet) == 7)
-    check(evaluate(parsePacket(str2BitArray("CE00C43D881120")).packet) == 9)
-    check(evaluate(parsePacket(str2BitArray("D8005AC2A8F0")).packet) == 1)
-    check(evaluate(parsePacket(str2BitArray("F600BC2D8F")).packet) == 0)
-    check(evaluate(parsePacket(str2BitArray("F600BC2D8F")).packet) == 0)
-    check(evaluate(parsePacket(str2BitArray("9C005AC2F8F0")).packet) == 0)
-    check(evaluate(parsePacket(str2BitArray("9C0141080250320F1802104A08")).packet) == 1)
+    check(evaluate(parsePacket(str2BitArray("C200B40A82")).packet) == 3L)
+    check(evaluate(parsePacket(str2BitArray("04005AC33890")).packet) == 54L)
+    check(evaluate(parsePacket(str2BitArray("880086C3E88112")).packet) == 7L)
+    check(evaluate(parsePacket(str2BitArray("CE00C43D881120")).packet) == 9L)
+    check(evaluate(parsePacket(str2BitArray("D8005AC2A8F0")).packet) == 1L)
+    check(evaluate(parsePacket(str2BitArray("F600BC2D8F")).packet) == 0L)
+    check(evaluate(parsePacket(str2BitArray("F600BC2D8F")).packet) == 0L)
+    check(evaluate(parsePacket(str2BitArray("9C005AC2F8F0")).packet) == 0L)
+    check(evaluate(parsePacket(str2BitArray("9C0141080250320F1802104A08")).packet) == 1L)
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day16_test")
@@ -283,5 +283,6 @@ fun main() {
     println(part1(input))
     println(part2(input))
 
-    // 723516735 too low
+    // 723516735 too low - for Int result
+    // 13608418623 tool low for Long result
 }
