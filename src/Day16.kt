@@ -100,6 +100,22 @@ fun main() {
                         ), index
                     )
                 }
+                1 -> {
+                    val subPacketsCount = bitsToInt(bits, startIndex + 7..startIndex + 17)
+                    var index = startIndex + 18
+                    val subPackets = mutableListOf<Packet>()
+                    repeat(subPacketsCount) {
+                        val parsedPacket = parsePacket(bits, index)
+                        index = parsedPacket.index
+                        subPackets.add(parsedPacket.packet)
+                    }
+                    ParsedPacket(
+                        OperatorPacket(
+                            version, typeId, lengthTypeId,
+                            subPackets.toList()
+                        ), index
+                    )
+                }
                 else -> error("unexpected lengthTypeId $lengthTypeId")
             }
         }
@@ -122,9 +138,16 @@ fun main() {
         return result
     }
 
-    fun part1(input: List<String>): Int {
-        return input.size
+    fun versionsSum(packet: Packet) : Int {
+        var sum = 0
+        sum += packet.version
+        if (packet is OperatorPacket) {
+            sum += packet.subPackets.asSequence().sumOf { versionsSum(it) }
+        }
+        return sum
     }
+
+    fun part1(input: List<String>): Int = versionsSum(parsePacket(str2BitArray(input[0])).packet)
 
     fun part2(input: List<String>): Int {
         return input.size
@@ -157,14 +180,60 @@ fun main() {
         }
     }
 
+    with(str2BitArray("EE00D40C823060")) {
+        check(this.joinToString("") == "11101110000000001101010000001100100000100011000001100000")
+        val parsedPacket = parsePacket(this).packet
+        check(parsedPacket is OperatorPacket)
+        check(parsedPacket.version == 7) { "fail version in packet $parsedPacket" }
+        check(parsedPacket.typeId == 3) { "fail typeId in packet $parsedPacket" }
+        check(parsedPacket.lengthTypeId == 1) { "fail lengthTypeId in packet $parsedPacket" }
+        check(parsedPacket.subPackets.size == 3)
+        with(parsedPacket.subPackets[0]) {
+            check(this is LiteralPacket)
+            check(this.data == 1L)
+        }
+        with(parsedPacket.subPackets[1]) {
+            check(this is LiteralPacket)
+            check(this.data == 2L)
+        }
+        with(parsedPacket.subPackets[2]) {
+            check(this is LiteralPacket)
+            check(this.data == 3L)
+        }
 
-    /*
+        with(str2BitArray("8A004A801A8002F478")) {
+            val parsedPacket = parsePacket(this).packet
+            check(parsedPacket is OperatorPacket)
+            check(parsedPacket.version == 4) { "fail version in packet $parsedPacket" }
+            check(parsedPacket.subPackets.size == 1)
+            with(parsedPacket.subPackets[0]) {
+                check(this is OperatorPacket)
+                check(this.version == 1)
+            }
+            check(versionsSum(parsedPacket) == 16)
+        }
+        with(str2BitArray("620080001611562C8802118E34")) {
+            val parsedPacket = parsePacket(this).packet
+            check(versionsSum(parsedPacket) == 12)
+        }
+        with(str2BitArray("C0015000016115A2E0802F182340")) {
+            val parsedPacket = parsePacket(this).packet
+            check(versionsSum(parsedPacket) == 23)
+        }
+        with(str2BitArray("A0016C880162017C3686B18A3D4780")) {
+            val parsedPacket = parsePacket(this).packet
+            check(versionsSum(parsedPacket) == 31)
+        }
+    }
+
+
     // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day16_test_0")
-    check(part1(testInput) == 1)
+    val testInput = readInput("Day16_test")
+    check(part1(testInput) == 31)
 
     val input = readInput("Day16")
     println(part1(input))
+    /*
     println(part2(input))
      */
 }
