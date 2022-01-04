@@ -32,7 +32,6 @@ fun main() {
         override val version: Int,
         override val typeId: Int,
         val lengthTypeId: Int,
-        val subPacketsLength: Int,
         val subPackets: List<Packet>
     ) : Packet(version, typeId)
 
@@ -63,11 +62,11 @@ fun main() {
     data class ParsedPacket(val packet: Packet, val index: Int)
 
     fun parsePacket(bits: ByteArray, startIndex: Int = 0): ParsedPacket {
-        val typeId = bitsToInt(bits, startIndex+ 3..startIndex+ 5)
-        val version = bitsToInt(bits, startIndex+ 0..startIndex+ 2)
+        val typeId = bitsToInt(bits, startIndex + 3..startIndex + 5)
+        val version = bitsToInt(bits, startIndex + 0..startIndex + 2)
         return if (typeId == 4) {
 
-            var index = startIndex+ 6
+            var index = startIndex + 6
             val list = mutableListOf<Byte>()
             while (bits[index] != zero) {
                 (index + 1..index + 4).forEach {
@@ -81,19 +80,15 @@ fun main() {
 
             ParsedPacket(LiteralPacket(version, bitsToLong(list.toByteArray())), index + 5)
         } else {
-            val lengthTypeId = bits[startIndex+ 6].toInt()
-            val subPacketsLength = if (lengthTypeId == 0) {
-                bitsToInt(bits, startIndex+ 7..startIndex+ 21)
-            } else {
-                0
-            }
+            val lengthTypeId = bits[startIndex + 6].toInt()
 
-            when(lengthTypeId) {
+            when (lengthTypeId) {
                 0 -> {
+                    val subPacketsLength = bitsToInt(bits, startIndex + 7..startIndex + 21)
                     var index = startIndex + 22
                     val finishIndex = index + subPacketsLength
                     val subPackets = mutableListOf<Packet>()
-                    while(index < finishIndex) {
+                    while (index < finishIndex) {
                         val parsedPacket = parsePacket(bits, index)
                         index = parsedPacket.index
                         subPackets.add(parsedPacket.packet)
@@ -101,11 +96,11 @@ fun main() {
                     ParsedPacket(
                         OperatorPacket(
                             version, typeId, lengthTypeId,
-                            subPacketsLength, subPackets.toList()
+                            subPackets.toList()
                         ), index
                     )
                 }
-                else -> error("unexpected subPacketsLength $subPacketsLength")
+                else -> error("unexpected lengthTypeId $lengthTypeId")
             }
         }
     }
@@ -151,7 +146,6 @@ fun main() {
         check(parsedPacket.version == 1) { "fail version in packet $parsedPacket" }
         check(parsedPacket.typeId == 6) { "fail typeId in packet $parsedPacket" }
         check(parsedPacket.lengthTypeId == 0) { "fail lengthTypeId in packet $parsedPacket" }
-        check(parsedPacket.subPacketsLength == 27) { "fail subPacketsLength in packet $parsedPacket" }
         check(parsedPacket.subPackets.size == 2)
         with(parsedPacket.subPackets[0]) {
             check(this is LiteralPacket)
