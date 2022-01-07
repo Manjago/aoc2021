@@ -56,13 +56,29 @@ fun main() {
         return maxY
     }
 
-    fun part2(input: List<String>): Int {
-        return input.size
+    fun part2(target: Target): Int {
+        val position = Position(0, 0)
+
+        val controlSet = mutableSetOf<Velocity>()
+        for(x in 0..target.xRange.last) {
+            for(y in target.yRange.first ..target.xRange.last*2) {
+                val foundedVelocity = Velocity(x, y)
+                val probe = probe(Location4D(position, foundedVelocity), target)
+                if (probe != null) {
+                    controlSet.add(foundedVelocity)
+                }
+            }
+        }
+        return controlSet.size
     }
 
     val testPart1 = part1(Target(20..30, -10..-5))
     check(testPart1 == 45) {"testPart1 = $testPart1"}
     val part1 = part1(Target(209..238, -86..-59))
     check(part1 == 3655) {"part1 = $part1"}
+    val testPart2 = part2(Target(20..30, -10..-5))
+    check(testPart2 == 112) {"testPart2 = $testPart2"}
+    val part2 = part2(Target(209..238, -86..-59))
+    check(part2 == 1447) {"part2 = $part2"}
 }
 
