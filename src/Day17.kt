@@ -40,14 +40,12 @@ fun main() {
     }
 
 
-    fun part1(): Int {
-        val target = Target(209..238, -86..-59)
-
+    fun part1(target: Target): Int {
         val position = Position(0, 0)
 
         var maxY = -1
-        for(x in 0..238) {
-            for(y in 0..300) {
+        for(x in 0..target.xRange.last) {
+            for(y in 0..target.xRange.last*2) {
                 val foundedVelocity = Velocity(x, y)
                 val probe = probe(Location4D(position, foundedVelocity), target)
                 if (probe != null && probe > maxY) {
@@ -55,31 +53,16 @@ fun main() {
                 }
             }
         }
-        return maxY ?: error("not found")
+        return maxY
     }
 
     fun part2(input: List<String>): Int {
         return input.size
     }
 
-    val target = Target(20..30, -10..-5)
-
-    val position = Position(0, 0)
-    val velocity = Velocity(6, 9)
-    val location =  Location4D(position, velocity)
-    println(probe(location, target))
-
-    var maxY = -1
-    for(x in 0..30) {
-        for(y in 0..30) {
-            val foundedVelocity = Velocity(x, y)
-            val probe = probe(Location4D(position, foundedVelocity), target)
-            if (probe != null && probe > maxY) {
-                maxY = probe
-           }
-        }
-    }
-    println(maxY)
-    println(part1())
+    val testPart1 = part1(Target(20..30, -10..-5))
+    check(testPart1 == 45) {"testPart1 = $testPart1"}
+    val part1 = part1(Target(209..238, -86..-59))
+    check(part1 == 3655) {"part1 = $part1"}
 }
 
