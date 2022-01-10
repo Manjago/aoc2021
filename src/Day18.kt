@@ -18,7 +18,7 @@ fun main() {
 
     fun parse(strValue: String): SnailfishPair {
 
-        val head = SnailfishPair(null,null, null)
+        val head = SnailfishPair(null, null, null)
         head.parent = head
         var current: SnailfishPair? = null
         val sb = StringBuilder()
@@ -66,6 +66,11 @@ fun main() {
         return head
     }
 
+    fun checkParse(strValue: String) {
+        val parsed = parse(strValue)
+        check(parsed.toString() == strValue)
+        println("ok $parsed")
+    }
 
     fun part1(input: List<String>): Int {
         return input.size
@@ -84,7 +89,7 @@ fun main() {
             check(this is SnailfishNumber)
             check(this.value == BigInteger.TWO)
         }
-        check(this.toString() ==  "[1,2]")
+        check(this.toString() == "[1,2]")
         println("ok $this")
     }
 
@@ -106,7 +111,7 @@ fun main() {
             check(this is SnailfishNumber)
             check(this.value == BigInteger.valueOf(3L))
         }
-        check(this.toString() ==  "[[1,2],3]")
+        check(this.toString() == "[[1,2],3]")
         println("ok $this")
     }
 
@@ -128,7 +133,7 @@ fun main() {
                 }
             }
         }
-        check(this.toString() ==  "[9,[8,7]]")
+        check(this.toString() == "[9,[8,7]]")
         println("ok $this")
     }
 
@@ -159,9 +164,28 @@ fun main() {
                 }
             }
         }
-        check(this.toString() ==  "[[1,9],[8,5]]")
+        check(this.toString() == "[[1,9],[8,5]]")
         println("ok $this")
     }
+
+    /*
+       [
+         [
+           [
+             [1,2],[3,4]
+           ]
+           ,
+           [
+             [5,6],[7,8]
+           ]
+         ]
+       ,
+       9]
+     */
+    checkParse("[[[[1,2],[3,4]],[[5,6],[7,8]]],9]")
+    checkParse("[[[9,[3,8]],[[0,9],6]],[[[3,7],[4,9]],3]]")
+    checkParse("[[[[1,3],[5,3]],[[1,3],[8,7]]],[[[4,9],[6,9]],[[8,2],[7,3]]]]")
+}
 
 /*
 // test if implementation meets criteria from the description, like:
@@ -172,4 +196,4 @@ val input = readInput("Day18")
 println(part1(input))
 println(part2(input))
  */
-}
+
