@@ -14,6 +14,13 @@ fun main() {
         override fun toString(): String {
             return "[${left?.toString()},${right?.toString()}]"
         }
+        operator fun plus(item: SnailfishPair) : SnailfishPair {
+            val result = SnailfishPair(null, this, item)
+            result.parent = result
+            this.parent = result
+            item.parent = result
+            return result
+        }
     }
 
     fun parse(strValue: String): SnailfishPair {
@@ -185,6 +192,9 @@ fun main() {
     checkParse("[[[[1,2],[3,4]],[[5,6],[7,8]]],9]")
     checkParse("[[[9,[3,8]],[[0,9],6]],[[[3,7],[4,9]],3]]")
     checkParse("[[[[1,3],[5,3]],[[1,3],[8,7]]],[[[4,9],[6,9]],[[8,2],[7,3]]]]")
+
+    val checkAddResult = parse("[1,2]") + parse("[[3,4],5]")
+    check("[[1,2],[[3,4],5]]" == checkAddResult.toString())
 }
 
 /*
