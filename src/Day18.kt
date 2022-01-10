@@ -132,6 +132,37 @@ fun main() {
         println("ok $this")
     }
 
+    with(parse("[[1,9],[8,5]]")) {
+        with(this.left) {
+            check(this is SnailfishPair)
+            with(this) {
+                with(this.left) {
+                    check(this is SnailfishNumber)
+                    check(this.value == BigInteger.valueOf(1L))
+                }
+                with(this.right) {
+                    check(this is SnailfishNumber)
+                    check(this.value == BigInteger.valueOf(9L))
+                }
+            }
+        }
+        with(this.right) {
+            check(this is SnailfishPair)
+            with(this) {
+                with(this.left) {
+                    check(this is SnailfishNumber)
+                    check(this.value == BigInteger.valueOf(8L))
+                }
+                with(this.right) {
+                    check(this is SnailfishNumber)
+                    check(this.value == BigInteger.valueOf(5L))
+                }
+            }
+        }
+        check(this.toString() ==  "[[1,9],[8,5]]")
+        println("ok $this")
+    }
+
 /*
 // test if implementation meets criteria from the description, like:
 val testInput = readInput("Day18_test")
