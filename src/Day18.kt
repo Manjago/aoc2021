@@ -10,18 +10,31 @@ fun main() {
         }
     }
 
-    data class SnailfishPair(var parent: Snailfish?, var left: Snailfish?, var right: Snailfish?) : Snailfish() {
+     class SnailfishPair(var parent: Snailfish?, var left: Snailfish?, var right: Snailfish?) : Snailfish() {
         override fun toString(): String {
             return "[${left?.toString()},${right?.toString()}]"
         }
-        operator fun plus(item: SnailfishPair) : SnailfishPair {
+
+
+         operator fun plus(item: SnailfishPair) : SnailfishPair {
             val result = SnailfishPair(null, this, item)
             result.parent = result
             this.parent = result
             item.parent = result
             return result
         }
-    }
+
+         override fun equals(other: Any?): Boolean {
+             if (this === other) return true
+             if (javaClass != other?.javaClass) return false
+
+             other as SnailfishPair
+
+             return other.toString() == toString()
+         }
+
+         override fun hashCode(): Int = toString().hashCode()
+     }
 
     fun parse(strValue: String): SnailfishPair {
 
@@ -71,6 +84,24 @@ fun main() {
             }
         }
         return head
+    }
+
+    fun String.toPair() = parse(this)
+
+    fun explodePretender(root: SnailfishPair, level: Int) : SnailfishPair? {
+
+        if (level == 4) {
+            return root
+        }
+
+        if (root.left != null && root.left is SnailfishPair) {
+            return explodePretender(root.left as SnailfishPair, level + 1)
+        }
+        if (root.right != null && root.right is SnailfishPair) {
+            return explodePretender(root.right as SnailfishPair, level + 1)
+        }
+
+        return null
     }
 
     fun checkParse(strValue: String) {
@@ -195,6 +226,12 @@ fun main() {
 
     val checkAddResult = parse("[1,2]") + parse("[[3,4],5]")
     check("[[1,2],[[3,4],5]]" == checkAddResult.toString())
+
+    check(explodePretender(parse("[[1,9],[8,5]]"), 0) == null)
+    check(explodePretender("[[[[[9,8],1],2],3],4]".toPair(), 0) == "[9,8]".toPair())
+    check(explodePretender("[7,[6,[5,[4,[3,2]]]]]".toPair(), 0) == "[3,2]".toPair())
+    check(explodePretender("[[6,[5,[4,[3,2]]]],1]".toPair(), 0) == "[3,2]".toPair())
+    check(explodePretender("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]".toPair(), 0) == "[7,3]".toPair())
 }
 
 /*
