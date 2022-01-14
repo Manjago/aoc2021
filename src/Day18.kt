@@ -1,8 +1,12 @@
 import java.math.BigInteger
 
+typealias SnailfishId=BigInteger
+
 fun main() {
 
-    abstract class Snailfish
+    var idSequence = BigInteger.ZERO
+
+    abstract class Snailfish(val id: SnailfishId = idSequence++)
 
     data class SnailfishNumber(var value: BigInteger) : Snailfish() {
         override fun toString(): String {
@@ -102,6 +106,36 @@ fun main() {
         }
 
         return null
+    }
+
+    fun numerate(root: SnailfishPair) : Map<Int, Snailfish> {
+
+        val visited = mutableSetOf<SnailfishId>()
+        val queue = ArrayDeque<SnailfishPair>()
+        val result = mutableMapOf<Int, Snailfish>()
+        var counter = 0
+
+        queue += root
+
+        while(queue.isNotEmpty()) {
+            val current = queue.removeFirst()
+            if (visited.contains(current.id)) {
+                continue
+            }
+            visited += current.id
+
+            when {
+                current.left != null && current.left is SnailfishNumber -> result[counter++] = current.left as SnailfishNumber
+                current.left != null && current.left is SnailfishPair -> queue += current.left as SnailfishPair
+            }
+            when {
+                current.right != null && current.right is SnailfishNumber -> result[counter++] = current.right as SnailfishNumber
+                current.right != null && current.right is SnailfishPair -> queue += current.right as SnailfishPair
+            }
+
+        }
+
+        return result.toMap()
     }
 
     fun checkParse(strValue: String) {
@@ -232,6 +266,9 @@ fun main() {
     check(explodePretender("[7,[6,[5,[4,[3,2]]]]]".toPair(), 0) == "[3,2]".toPair())
     check(explodePretender("[[6,[5,[4,[3,2]]]],1]".toPair(), 0) == "[3,2]".toPair())
     check(explodePretender("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]".toPair(), 0) == "[7,3]".toPair())
+
+    check(numerate(parse("[[1,9],[8,5]]")).toString() == "{0=1, 1=9, 2=8, 3=5}")
+    println(numerate("[[[[[9,8],1],2],3],4]".toPair()))
 }
 
 /*
